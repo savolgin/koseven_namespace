@@ -478,6 +478,9 @@ class Kohana_Request implements HTTP_Request {
 			// We found something suitable
 			if ($params = $route->matches($request))
 			{
+                if (!empty($params['action'])) {
+                    $params['action'] = str_replace('-', '_', $params['action']);
+                }
 				return [
 					'params' => $params,
 					'route' => $route,
