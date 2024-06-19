@@ -23,3 +23,25 @@ Add a loader to the composer:
 ...
 
 ```
+
+
+Controller example (controller must have name with postfix ...Controller):
+
+```php
+
+//filename application/classes/Controller/AuctionController.php
+
+namespace AU\Controller;
+
+use Twig;
+use Auth;
+use Controller;
+...
+
+class AuctionController extends Controller
+{
+    public function action_index()
+    {
+        ...
+    }
+```
