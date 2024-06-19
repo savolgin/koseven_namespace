@@ -66,9 +66,11 @@ class Kohana_Request_Client_Internal extends Request_Client {
 		// Change the current request to this request
 		Request::$current = $request;
 
+        $className = $request->isUsingNamespace() ? $controller : $prefix.$controller;
+
 		try
 		{
-			if ( ! class_exists($prefix.$controller))
+			if ( ! class_exists($className))
 			{
 				throw HTTP_Exception::factory(404,
 					'The requested URL :uri was not found on this server.',
@@ -77,13 +79,13 @@ class Kohana_Request_Client_Internal extends Request_Client {
 			}
 
 			// Load the controller using reflection
-			$class = new ReflectionClass($prefix.$controller);
+			$class = new ReflectionClass($className);
 
 			if ($class->isAbstract())
 			{
 				throw new Kohana_Exception(
 					'Cannot create instances of abstract :controller',
-					[':controller' => $prefix.$controller]
+					[':controller' => $className]
 				);
 			}
 

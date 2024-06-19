@@ -354,7 +354,7 @@ class Kohana_Request implements HTTP_Request {
 		if ($accepts === NULL)
 		{
 			// Parse the HTTP_ACCEPT header
-			$accepts = Request::_parse_accept($_SERVER['HTTP_ACCEPT'], ['*/*' => 1.0]);
+            $accepts = self::_parse_accept($_SERVER['HTTP_ACCEPT'], ['*/*' => 1.0]);
 		}
 
 		if (isset($type))
@@ -387,7 +387,7 @@ class Kohana_Request implements HTTP_Request {
 		if ($accepts === NULL)
 		{
 			// Parse the HTTP_ACCEPT_LANGUAGE header
-			$accepts = Request::_parse_accept($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+            $accepts = self::_parse_accept($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 		}
 
 		if (isset($lang))
@@ -420,7 +420,7 @@ class Kohana_Request implements HTTP_Request {
 		if ($accepts === NULL)
 		{
 			// Parse the HTTP_ACCEPT_LANGUAGE header
-			$accepts = Request::_parse_accept($_SERVER['HTTP_ACCEPT_ENCODING']);
+            $accepts = self::_parse_accept($_SERVER['HTTP_ACCEPT_ENCODING']);
 		}
 
 		if (isset($type))
@@ -601,6 +601,11 @@ class Kohana_Request implements HTTP_Request {
 	 * @var  string  controller to be executed
 	 */
 	protected $_controller;
+
+    /**
+     * @var bool controller with RSR-4 namespace
+     */
+    protected $_namespace = false;
 
 	/**
 	 * @var  string  action to be executed in the controller
@@ -866,7 +871,17 @@ class Kohana_Request implements HTTP_Request {
 		return $this;
 	}
 
-	/**
+    /**
+     * Returns whether this is controller class using namespace
+     *
+     * @return bool
+     */
+    public function isUsingNamespace(): bool
+    {
+        return $this->_namespace;
+    }
+
+    /**
 	 * Sets and gets the action for the controller.
 	 *
 	 * @param   string   $action  Action to execute the controller from
@@ -969,13 +984,19 @@ class Kohana_Request implements HTTP_Request {
 				// Store the controller
 				$this->_controller = $params['controller'];
 
+                if (isset($params['namespace'])) {
+                    $dir = empty($this->_directory) ? '' : $this->_directory . '\\';
+                    $this->_controller = $params['namespace'] . $dir . $params['controller'] . 'Controller';
+                    $this->_namespace = true;
+                }
+
 				// Store the action
 				$this->_action = (isset($params['action']))
 					? $params['action']
 					: Route::$default_action;
 
 				// These are accessible as public vars and can be overloaded
-				unset($params['controller'], $params['action'], $params['directory']);
+                unset($params['controller'], $params['action'], $params['directory'], $params['namespace']);
 
 				// Params cannot be changed once matched
 				$this->_params = $params;
